@@ -1,8 +1,9 @@
 const crypto = require('crypto');
+const cbor = require('cbor');
 
 const decodeData = (payload) => {
   return new Promise((resolve, reject) => {
-    let result = JSON.parse(payload);
+    let result = cbor.decode(payload);
     return result ? resolve(result) : reject(result);
   });
 }
