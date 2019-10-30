@@ -1,6 +1,7 @@
 const { TransactionHandler } = require('sawtooth-sdk/processor/handler');
 const { InternalError, InvalidTransaction } = require('sawtooth-sdk').exceptions;
 const { decodeData, hash } = require('./lib/helpers');
+const cbor = require('cbor');
 
 const FAMILY_NAME = "wallet-fammily", VERSION = "1.0", NAMESPACE = ["wallet", "wallfam", hash(FAMILY_NAME).substr(0, 6)];
 
@@ -20,12 +21,39 @@ class WalletHandler extends TransactionHandler {
           throw new InvalidTransaction("Payload does not contain the ID");
         }
 
+        if (!payload.data) {
+          throw new InvalidTransaction('Payload does not contain the data');
+        }
+
         let action = payload.action;
-        let address = NAMESPACE[2] + hash(payload.id).substring(0, 64);
+        let id = payload.id;
+        let address = NAMESPACE[2] + hash(id).substring(0, 64);
 
         switch(action) {
           case "deposit":
-
+            let entries = {
+              [address]: cbor.encode(payload.data)
+            }
+            context.setState(entries);
+          case "withdraw":
+            context.getState([address])
+            .then(possibleAddressValues => {
+              let stateValue = possibleAddressValues[address];
+              if (stateValue && stateValue.length) {
+                let value = cbor.decodeFirstSync(stateValue);
+                if (value[id]) {
+                  if (value[id].amount - payload['data']['amount'] >= 0) {
+                    value[id].amount = value[id].amount - payload['data']['amount'];
+                  } else {
+                    throw new InvalidTransaction('Insufficient funds to complete the transaction');
+                  }
+                  let entries = {
+                    [address]: cbor.encode(value[id])
+                  }
+                  context.setState(entries);
+                }
+              }
+            })
           default:
             throw new InvalidTransaction("The action in Invalid or not supported by this transaction processor");
         }
@@ -35,3 +63,5 @@ class WalletHandler extends TransactionHandler {
       })
   }
 }
+
+module.exports = WalletHandler;
