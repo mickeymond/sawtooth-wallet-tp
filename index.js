@@ -14,4 +14,8 @@ process.on('SIGUSR2', () => {
   transactionProcessor._handleShutdown();
 });
 
+process.on('beforeExit', async () => {
+  await transactionProcessor._handleShutdown();
+})
+
 console.log('Transaction Processor Connected');
