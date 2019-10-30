@@ -6,7 +6,7 @@ const request = require('request');
 
 const context = createContext('secp256k1');
 const privateKey = context.newRandomPrivateKey();
-const signer = CryptoFactory(context).newSigner(privateKey);
+const signer = new CryptoFactory(context).newSigner(privateKey);
 
 const payload = {
   id: 'John',
