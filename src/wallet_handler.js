@@ -7,7 +7,7 @@ const FAMILY_NAME = "wallet-fammily", VERSION = "1.0", NAMESPACE = ["wallet", "w
 
 class WalletHandler extends TransactionHandler {
   constructor() {
-    super(FAMILY_NAME, VERSION, NAMESPACE);
+    super(FAMILY_NAME, [VERSION], NAMESPACE);
   }
 
   apply(transactionRequest, context) {
