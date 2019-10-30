@@ -8,6 +8,8 @@ const FAMILY_NAME = "wallet-fammily", VERSION = "1.0", NAMESPACE = ["wallet", "w
 class WalletHandler extends TransactionHandler {
   constructor() {
     super(FAMILY_NAME, [VERSION], NAMESPACE);
+
+    this.timeout = 500;
   }
 
   apply(transactionProcessRequest, context) {
@@ -34,9 +36,9 @@ class WalletHandler extends TransactionHandler {
             let entries = {
               [address]: cbor.encode(payload.data)
             }
-            context.setState(entries);
+            return context.setState(entries, this.timeout);
           case "withdraw":
-            context.getState([address])
+            return context.getState([address], this.timeout)
             .then(possibleAddressValues => {
               let stateValue = possibleAddressValues[address];
               if (stateValue && stateValue.length) {
@@ -50,7 +52,7 @@ class WalletHandler extends TransactionHandler {
                   let entries = {
                     [address]: cbor.encode(value[id])
                   }
-                  context.setState(entries);
+                  return context.setState(entries, this.timeout);
                 }
               }
             })
