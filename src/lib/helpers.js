@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const cbor = require('cbor');
 
 const decodeData = (buffer) => (
   new Promise((resolve, reject) =>

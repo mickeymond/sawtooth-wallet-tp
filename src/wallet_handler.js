@@ -10,8 +10,8 @@ class WalletHandler extends TransactionHandler {
     super(FAMILY_NAME, [VERSION], NAMESPACE);
   }
 
-  apply(transactionRequest, context) {
-    return decodeData(transactionRequest.payload)
+  apply(transactionProcessRequest, context) {
+    return decodeData(transactionProcessRequest.payload)
       .then(payload => {
         if (!payload.action) {
           throw new InvalidTransaction("Payload does not contain the action");
